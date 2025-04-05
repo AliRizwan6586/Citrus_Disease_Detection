@@ -73,4 +73,4 @@ if st.button('Predict'):
         st.write(f'Confidence: {confidence:.2f} %')
 
 # Display note about uploading a citrus leaf image
-st.write("Note: Make sure to upload an image of a citrus leaf.")
+st.write("Note: Make sure to upload an image of a citrus fruit only.")
