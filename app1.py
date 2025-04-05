@@ -5,17 +5,14 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input as vgg16_preprocess_input
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import GlobalAveragePooling2D
 import joblib
 import tempfile
 
-# Cache VGG16 model with reduced output dimension
+# Cache VGG16 model (no GlobalAveragePooling2D, use original block5_pool output)
 @st.cache_resource
 def load_vgg16_model():
     base_model = VGG16(weights='imagenet', include_top=False)
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    model = Model(inputs=base_model.input, outputs=x)
+    model = Model(inputs=base_model.input, outputs=base_model.get_layer('block5_pool').output)
     return model
 
 # Cache model loader for SVM and LabelEncoder
@@ -25,14 +22,15 @@ def load_svm_model(model_path):
         model = joblib.load(f)
     return model
 
-# Feature extraction using VGG16
+# Feature extraction using VGG16 (flattening the features)
 def extract_vgg16_features(img_path, model):
     img = image.load_img(img_path, target_size=(224, 224))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = vgg16_preprocess_input(x)
     features = model.predict(x)
-    return features
+    features_flatten = features.reshape((features.shape[0], -1))  # Flatten to 25088
+    return features_flatten
 
 # Sigmoid for confidence estimation
 def sigmoid(x):
