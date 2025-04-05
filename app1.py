@@ -1,4 +1,6 @@
 import streamlit as st
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
 import numpy as np
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input as vgg16_preprocess_input
